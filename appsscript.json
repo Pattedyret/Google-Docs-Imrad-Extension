@@ -16,9 +16,20 @@
     "https://www.googleapis.com/auth/drive.file",
     "https://www.googleapis.com/auth/drive.readonly"
   ],
-  "webapp": {
-    "executeAs": "USER_DEPLOYING",
-    "access": "ANYONE"
+  "addOns": {
+    "common": {
+      "name": "IMRAD Helper",
+      "useLocaleFromApp": true,
+      "homepageTrigger": {
+        "enabled": true,
+        "runFunction": "onOpen"
+      }
+    },
+    "docs": {
+      "homepageTrigger": {
+        "enabled": true,
+        "runFunction": "onOpen"
+      }
+    }
   }
-} 
-
+}
