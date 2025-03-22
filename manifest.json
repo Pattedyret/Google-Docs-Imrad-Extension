@@ -1,0 +1,26 @@
+{
+  "manifest_version": 2,
+  "name": "IMRAD Structure Helper",
+  "version": "1.0",
+  "description": "Helps structure academic documents according to IMRAD format",
+  "permissions": [
+    "activeTab",
+    "https://docs.google.com/*"
+  ],
+  "oauth2": {
+    "client_id": "${YOUR_CLIENT_ID}",
+    "scopes": [
+      "https://www.googleapis.com/auth/documents"
+    ]
+  },
+  "content_scripts": [
+    {
+      "matches": ["https://docs.google.com/document/*"],
+      "js": ["content.js"]
+    }
+  ],
+  "icons": {
+    "48": "icon48.png",
+    "128": "icon128.png"
+  }
+} 
