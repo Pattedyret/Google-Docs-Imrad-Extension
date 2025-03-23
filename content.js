@@ -189,6 +189,15 @@ class IMRADHelper {
 // Initialize the helper
 const imradHelper = new IMRADHelper();
 
+// Add menu item to Google Docs
+function onOpen() {
+  DocumentApp.getUi()
+    .createMenu('IMRAD Helper')
+    .addItem('Create IMRAD Structure', 'showSectionSelector')
+    .addItem('Analyze Document Structure', 'analyzeDocument')
+    .addToUi();
+}
+
 // Add this function to show the selection dialog
 function showSectionSelector() {
   const html = `
@@ -470,12 +479,12 @@ function insertSection(sectionTitle, subsections, body, style) {
   sectionPara.setAttributes(style);
 
   // Get the section's subsections and placeholders from the original structure
-  const sectionData = IMRAD_STRUCTURE[sectionTitle.toLowerCase()];
+  const sectionData = imradHelper.sections[sectionTitle.toLowerCase()];
   
   sectionData.subsections.forEach(subsection => {
-    const subsectionId = subsection.toLowerCase().replace(/\s+/g, '-');
+    const subsectionId = subsection.title.toLowerCase().replace(/\s+/g, '-');
     if (subsections[subsectionId]) {
-      const subsectionPara = body.appendParagraph(subsection);
+      const subsectionPara = body.appendParagraph(subsection.title);
       subsectionPara.setHeading(DocumentApp.ParagraphHeading.HEADING2);
       subsectionPara.setAttributes(style);
       
