@@ -61,15 +61,461 @@ function onOpen() {
 }
 
 function showSectionSelector() {
-  // ... show selector dialog
+  const html = `
+    <!DOCTYPE html>
+    <html>
+      <head>
+        <base target="_top">
+        <style>
+          body {
+            font-family: 'Google Sans', Arial, sans-serif;
+            padding: 24px;
+            background-color: #f8f9fa;
+            color: #202124;
+            max-width: 800px;
+            margin: 0 auto;
+          }
+
+          .card {
+            background: white;
+            border-radius: 8px;
+            box-shadow: 0 1px 3px rgba(0,0,0,0.12), 0 1px 2px rgba(0,0,0,0.24);
+            padding: 20px;
+            margin-bottom: 24px;
+            transition: all 0.3s cubic-bezier(.25,.8,.25,1);
+          }
+
+          .card:hover {
+            box-shadow: 0 3px 6px rgba(0,0,0,0.16), 0 3px 6px rgba(0,0,0,0.23);
+          }
+
+          h3 {
+            color: #1a73e8;
+            margin-top: 0;
+            font-size: 18px;
+            font-weight: 500;
+            margin-bottom: 16px;
+            border-bottom: 2px solid #e8f0fe;
+            padding-bottom: 8px;
+          }
+
+          select, input[type="text"] {
+            width: 100%;
+            padding: 8px 12px;
+            border: 1px solid #dadce0;
+            border-radius: 4px;
+            font-size: 14px;
+            margin: 4px 0;
+            transition: border-color 0.2s;
+          }
+
+          select:focus, input[type="text"]:focus {
+            outline: none;
+            border-color: #1a73e8;
+          }
+
+          .checkbox-wrapper {
+            display: flex;
+            align-items: center;
+            margin: 8px 0;
+            padding: 4px 0;
+          }
+
+          input[type="checkbox"] {
+            margin-right: 8px;
+            width: 18px;
+            height: 18px;
+            accent-color: #1a73e8;
+          }
+
+          label {
+            font-size: 14px;
+            color: #5f6368;
+          }
+
+          .section {
+            background: #f8f9fa;
+            border-radius: 4px;
+            padding: 16px;
+            margin: 12px 0;
+            border: 1px solid #dadce0;
+          }
+
+          .subsection {
+            margin-left: 24px;
+            padding: 8px 0;
+            display: flex;
+            align-items: center;
+          }
+
+          .subsection input[type="text"] {
+            flex-grow: 1;
+            margin-left: 8px;
+          }
+
+          button {
+            background: #1a73e8;
+            color: white;
+            border: none;
+            padding: 8px 16px;
+            border-radius: 4px;
+            font-size: 14px;
+            cursor: pointer;
+            transition: background 0.2s;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            min-width: 100px;
+          }
+
+          button:hover {
+            background: #1557b0;
+          }
+
+          .secondary-button {
+            background: #fff;
+            color: #1a73e8;
+            border: 1px solid #1a73e8;
+            margin-right: 8px;
+          }
+
+          .secondary-button:hover {
+            background: #e8f0fe;
+          }
+
+          .add-subsection-btn {
+            background: #34a853;
+            margin-top: 8px;
+            margin-left: 24px;
+          }
+
+          .add-subsection-btn:hover {
+            background: #2d8544;
+          }
+
+          .preset-info {
+            font-size: 13px;
+            color: #5f6368;
+            margin-top: 8px;
+            padding: 8px;
+            background: #e8f0fe;
+            border-radius: 4px;
+            border-left: 4px solid #1a73e8;
+          }
+
+          .button-container {
+            display: flex;
+            justify-content: flex-end;
+            margin-top: 24px;
+            padding-top: 16px;
+            border-top: 1px solid #dadce0;
+          }
+
+          .template-actions {
+            display: flex;
+            gap: 8px;
+            margin-top: 12px;
+          }
+
+          .template-actions select {
+            flex-grow: 1;
+          }
+
+          .save-template {
+            background: #34a853;
+          }
+
+          .save-template:hover {
+            background: #2d8544;
+          }
+
+          .load-template {
+            background: #ea4335;
+          }
+
+          .load-template:hover {
+            background: #d33828;
+          }
+        </style>
+      </head>
+      <body>
+        <div class="card">
+          <h3>Select Report Type</h3>
+          <select id="presetType" onchange="loadPreset()">
+            <option value="standard">Standard Research Paper</option>
+            <option value="systematic">Systematic Review</option>
+            <option value="case">Case Study</option>
+            <option value="experimental">Experimental Research</option>
+            <option value="qualitative">Qualitative Research</option>
+            <option value="mixed">Mixed Methods Research</option>
+            <option value="custom">Custom Template</option>
+          </select>
+          <div id="presetInfo" class="preset-info"></div>
+        </div>
+
+        <div class="card">
+          <h3>Templates</h3>
+          <div class="template-actions">
+            <select id="savedTemplates">
+              <option value="">Select a saved template...</option>
+            </select>
+            <button onclick="loadSavedTemplate()" class="load-template">Load</button>
+            <button onclick="showSaveDialog()" class="save-template">Save</button>
+          </div>
+        </div>
+
+        <div class="card">
+          <h3>Document Settings</h3>
+          <div>
+            <label for="fontFamily">Font:</label>
+            <select id="fontFamily">
+              <option value="Times New Roman">Times New Roman</option>
+              <option value="Arial">Arial</option>
+              <option value="Calibri">Calibri</option>
+              <option value="Georgia">Georgia</option>
+              <option value="Helvetica">Helvetica</option>
+            </select>
+          </div>
+          <div class="checkbox-wrapper">
+            <input type="checkbox" id="includeToC" checked>
+            <label for="includeToC">Include Table of Contents</label>
+          </div>
+        </div>
+
+        <div id="sections-container"></div>
+
+        <div class="button-container">
+          <button class="secondary-button" onclick="google.script.host.close()">Cancel</button>
+          <button onclick="submitSelections()">Create Structure</button>
+        </div>
+
+        <script>
+          const presets = {
+            standard: {
+              name: "Standard Research Paper",
+              info: "Traditional IMRAD format suitable for most research papers",
+              sections: [
+                {
+                  title: "Introduction",
+                  subsections: ["Background", "Problem Statement", "Research Objectives", "Research Questions", "Significance"]
+                },
+                {
+                  title: "Methods",
+                  subsections: ["Research Design", "Participants", "Data Collection", "Data Analysis", "Ethical Considerations"]
+                },
+                {
+                  title: "Results",
+                  subsections: ["Data Presentation", "Statistical Analysis", "Key Findings"]
+                },
+                {
+                  title: "Discussion",
+                  subsections: ["Interpretation", "Implications", "Limitations", "Future Research", "Conclusion"]
+                }
+              ]
+            },
+            systematic: {
+              name: "Systematic Review",
+              info: "Structured format for systematic literature reviews",
+              sections: [
+                {
+                  title: "Introduction",
+                  subsections: ["Background", "Review Objectives", "Research Questions"]
+                },
+                {
+                  title: "Methods",
+                  subsections: ["Search Strategy", "Inclusion Criteria", "Quality Assessment", "Data Extraction"]
+                },
+                {
+                  title: "Results",
+                  subsections: ["Study Selection", "Study Characteristics", "Quality Assessment", "Data Synthesis"]
+                },
+                {
+                  title: "Discussion",
+                  subsections: ["Summary of Evidence", "Limitations", "Conclusions", "Implications for Practice"]
+                }
+              ]
+            },
+            case: {
+              name: "Case Study",
+              info: "Detailed examination of a specific case or instance",
+              sections: [
+                {
+                  title: "Introduction",
+                  subsections: ["Background", "Case Overview", "Objectives"]
+                },
+                {
+                  title: "Case Presentation",
+                  subsections: ["Context", "Detailed Description", "Key Issues"]
+                },
+                {
+                  title: "Methods",
+                  subsections: ["Data Sources", "Analysis Approach"]
+                },
+                {
+                  title: "Findings",
+                  subsections: ["Key Observations", "Analysis Results"]
+                },
+                {
+                  title: "Discussion",
+                  subsections: ["Interpretation", "Lessons Learned", "Recommendations"]
+                }
+              ]
+            },
+            // Add more presets...
+          };
+
+          function loadPreset() {
+            const selectedPreset = document.getElementById('presetType').value;
+            const presetInfo = document.getElementById('presetInfo');
+            
+            if (selectedPreset === 'custom') {
+              presetInfo.textContent = 'Create your own structure or load a saved template';
+              return;
+            }
+
+            const preset = presets[selectedPreset];
+            presetInfo.textContent = preset.info;
+            renderSections(preset.sections);
+          }
+
+          function renderSections(sections) {
+            const container = document.getElementById('sections-container');
+            container.innerHTML = '';
+            
+            sections.forEach((section, index) => {
+              const sectionDiv = document.createElement('div');
+              sectionDiv.className = 'section';
+              sectionDiv.innerHTML = \`
+                <div class="section-title">
+                  <input type="checkbox" checked>
+                  <input type="text" value="\${section.title}" class="section-title-input">
+                </div>
+                <div class="subsections">
+                  \${section.subsections.map(sub => \`
+                    <div class="subsection">
+                      <input type="checkbox" checked>
+                      <input type="text" value="\${sub}">
+                    </div>
+                  \`).join('')}
+                </div>
+                <button onclick="addSubsection(this)">Add Subsection</button>
+              \`;
+              container.appendChild(sectionDiv);
+            });
+          }
+
+          function showSaveDialog() {
+            const templateName = prompt('Enter a name for this template:');
+            if (templateName) {
+              const template = {
+                name: templateName,
+                sections: getCurrentSections(),
+                formatting: {
+                  font: document.getElementById('fontFamily').value,
+                  includeToC: document.getElementById('includeToC').checked
+                }
+              };
+              google.script.run
+                .withSuccessHandler(updateTemplatesList)
+                .saveTemplate(template);
+            }
+          }
+
+          function loadSavedTemplate() {
+            const templateName = document.getElementById('savedTemplates').value;
+            if (templateName) {
+              google.script.run
+                .withSuccessHandler(loadTemplate)
+                .loadTemplate(templateName);
+            }
+          }
+
+          function updateTemplatesList(templates) {
+            const select = document.getElementById('savedTemplates');
+            select.innerHTML = '<option value="">Select a saved template...</option>';
+            templates.forEach(template => {
+              const option = document.createElement('option');
+              option.value = template.name;
+              option.textContent = template.name;
+              select.appendChild(option);
+            });
+          }
+
+          // Load templates when page loads
+          google.script.run
+            .withSuccessHandler(updateTemplatesList)
+            .getTemplates();
+
+          // Initialize with standard preset
+          loadPreset();
+        </script>
+      </body>
+    </html>
+  `;
+
+  const htmlOutput = HtmlService.createHtmlOutput(html)
+    .setWidth(600)
+    .setHeight(800)
+    .setTitle('Configure IMRAD Structure');
+
+  DocumentApp.getUi().showModalDialog(htmlOutput, 'Configure IMRAD Structure');
 }
 
 function insertSelectedStructure(selections) {
-  // ... handle structure insertion
+  const doc = DocumentApp.getActiveDocument();
+  const body = doc.getBody();
+  
+  // Clear existing content
+  body.clear();
+  
+  // Set default paragraph style
+  const style = {};
+  style[DocumentApp.Attribute.FONT_FAMILY] = 'Times New Roman';
+  style[DocumentApp.Attribute.FONT_SIZE] = 12;
+  body.setAttributes(style);
+  
+  // Insert title
+  const title = body.appendParagraph('Title');
+  title.setHeading(DocumentApp.ParagraphHeading.TITLE);
+  title.setAttributes(style);
+
+  // Insert selected sections
+  if (selections.introduction.selected) {
+    insertSection('Introduction', selections.introduction.subsections, body, style);
+  }
+  if (selections.methods.selected) {
+    insertSection('Methods', selections.methods.subsections, body, style);
+  }
+  if (selections.results.selected) {
+    insertSection('Results', selections.results.subsections, body, style);
+  }
+  if (selections.discussion.selected) {
+    insertSection('Discussion', selections.discussion.subsections, body, style);
+  }
 }
 
-function analyzeDocument() {
-  // ... handle document analysis
+function insertSection(sectionTitle, subsections, body, style) {
+  const sectionPara = body.appendParagraph(sectionTitle);
+  sectionPara.setHeading(DocumentApp.ParagraphHeading.HEADING1);
+  sectionPara.setAttributes(style);
+
+  // Get the section's subsections and placeholders from the original structure
+  const sectionData = IMRAD_STRUCTURE[sectionTitle.toLowerCase()];
+  
+  sectionData.subsections.forEach(subsection => {
+    const subsectionId = subsection.toLowerCase().replace(/\s+/g, '-');
+    if (subsections[subsectionId]) {
+      const subsectionPara = body.appendParagraph(subsection);
+      subsectionPara.setHeading(DocumentApp.ParagraphHeading.HEADING2);
+      subsectionPara.setAttributes(style);
+      
+      const placeholderPara = body.appendParagraph(subsection.placeholder);
+      placeholderPara.setAttributes(style);
+    }
+  });
+
+  // Add spacing between sections
+  body.appendParagraph('').setAttributes(style);
 }
 
 // IMRAD Structure Helper
@@ -189,310 +635,22 @@ class IMRADHelper {
 // Initialize the helper
 const imradHelper = new IMRADHelper();
 
-// Add menu item to Google Docs
-function onOpen() {
-  DocumentApp.getUi()
-    .createMenu('IMRAD Helper')
-    .addItem('Create IMRAD Structure', 'showSectionSelector')
-    .addItem('Analyze Document Structure', 'analyzeDocument')
-    .addToUi();
+// Add these functions to handle template storage
+function saveTemplate(template) {
+  const userProperties = PropertiesService.getUserProperties();
+  const templates = JSON.parse(userProperties.getProperty('templates') || '[]');
+  templates.push(template);
+  userProperties.setProperty('templates', JSON.stringify(templates));
+  return templates;
 }
 
-// Add this function to show the selection dialog
-function showSectionSelector() {
-  const html = `
-    <!DOCTYPE html>
-    <html>
-      <head>
-        <base target="_top">
-        <style>
-          body {
-            font-family: Arial, sans-serif;
-            padding: 20px;
-          }
-          .section {
-            margin-bottom: 20px;
-          }
-          .section-title {
-            font-weight: bold;
-            margin-bottom: 10px;
-          }
-          .subsection {
-            margin-left: 20px;
-            margin-bottom: 5px;
-          }
-          .button-container {
-            margin-top: 20px;
-            text-align: right;
-          }
-          button {
-            padding: 8px 16px;
-            margin-left: 10px;
-          }
-          .select-all {
-            margin-bottom: 15px;
-          }
-        </style>
-      </head>
-      <body>
-        <h3>Select IMRAD Sections</h3>
-        <div class="select-all">
-          <input type="checkbox" id="selectAll" checked>
-          <label for="selectAll">Select/Deselect All</label>
-        </div>
-        
-        <div class="sections">
-          <div class="section">
-            <div class="section-title">
-              <input type="checkbox" id="introduction" checked>
-              <label for="introduction">Introduction</label>
-            </div>
-            <div class="subsections" id="introduction-subs">
-              <div class="subsection">
-                <input type="checkbox" id="background" checked>
-                <label for="background">Background</label>
-              </div>
-              <div class="subsection">
-                <input type="checkbox" id="problem-statement" checked>
-                <label for="problem-statement">Problem Statement</label>
-              </div>
-              <div class="subsection">
-                <input type="checkbox" id="research-objectives" checked>
-                <label for="research-objectives">Research Objectives</label>
-              </div>
-              <div class="subsection">
-                <input type="checkbox" id="research-questions" checked>
-                <label for="research-questions">Research Questions/Hypotheses</label>
-              </div>
-              <div class="subsection">
-                <input type="checkbox" id="significance" checked>
-                <label for="significance">Significance of the Study</label>
-              </div>
-            </div>
-          </div>
-
-          <div class="section">
-            <div class="section-title">
-              <input type="checkbox" id="methods" checked>
-              <label for="methods">Methods</label>
-            </div>
-            <div class="subsections" id="methods-subs">
-              <div class="subsection">
-                <input type="checkbox" id="research-design" checked>
-                <label for="research-design">Research Design</label>
-              </div>
-              <div class="subsection">
-                <input type="checkbox" id="participants" checked>
-                <label for="participants">Participants/Sample</label>
-              </div>
-              <div class="subsection">
-                <input type="checkbox" id="data-collection" checked>
-                <label for="data-collection">Data Collection</label>
-              </div>
-              <div class="subsection">
-                <input type="checkbox" id="data-analysis" checked>
-                <label for="data-analysis">Data Analysis</label>
-              </div>
-              <div class="subsection">
-                <input type="checkbox" id="ethical" checked>
-                <label for="ethical">Ethical Considerations</label>
-              </div>
-            </div>
-          </div>
-
-          <div class="section">
-            <div class="section-title">
-              <input type="checkbox" id="results" checked>
-              <label for="results">Results</label>
-            </div>
-            <div class="subsections" id="results-subs">
-              <div class="subsection">
-                <input type="checkbox" id="data-presentation" checked>
-                <label for="data-presentation">Data Presentation</label>
-              </div>
-              <div class="subsection">
-                <input type="checkbox" id="statistical-analysis" checked>
-                <label for="statistical-analysis">Statistical Analysis</label>
-              </div>
-              <div class="subsection">
-                <input type="checkbox" id="key-findings" checked>
-                <label for="key-findings">Key Findings</label>
-              </div>
-              <div class="subsection">
-                <input type="checkbox" id="tables-figures" checked>
-                <label for="tables-figures">Tables and Figures</label>
-              </div>
-            </div>
-          </div>
-
-          <div class="section">
-            <div class="section-title">
-              <input type="checkbox" id="discussion" checked>
-              <label for="discussion">Discussion</label>
-            </div>
-            <div class="subsections" id="discussion-subs">
-              <div class="subsection">
-                <input type="checkbox" id="interpretation" checked>
-                <label for="interpretation">Interpretation of Results</label>
-              </div>
-              <div class="subsection">
-                <input type="checkbox" id="implications" checked>
-                <label for="implications">Implications</label>
-              </div>
-              <div class="subsection">
-                <input type="checkbox" id="limitations" checked>
-                <label for="limitations">Limitations</label>
-              </div>
-              <div class="subsection">
-                <input type="checkbox" id="future-research" checked>
-                <label for="future-research">Future Research</label>
-              </div>
-              <div class="subsection">
-                <input type="checkbox" id="conclusion" checked>
-                <label for="conclusion">Conclusion</label>
-              </div>
-            </div>
-          </div>
-        </div>
-
-        <div class="button-container">
-          <button onclick="google.script.host.close()">Cancel</button>
-          <button onclick="submitSelections()">Create Structure</button>
-        </div>
-
-        <script>
-          // Handle select all checkbox
-          document.getElementById('selectAll').addEventListener('change', function(e) {
-            const checkboxes = document.querySelectorAll('input[type="checkbox"]');
-            checkboxes.forEach(checkbox => {
-              checkbox.checked = e.target.checked;
-            });
-          });
-
-          // Handle section checkbox to toggle its subsections
-          document.querySelectorAll('.section-title input').forEach(checkbox => {
-            checkbox.addEventListener('change', function(e) {
-              const subsections = this.closest('.section').querySelectorAll('.subsections input');
-              subsections.forEach(sub => {
-                sub.checked = e.target.checked;
-              });
-            });
-          });
-
-          function submitSelections() {
-            const selections = {
-              introduction: {
-                selected: document.getElementById('introduction').checked,
-                subsections: {
-                  background: document.getElementById('background').checked,
-                  problemStatement: document.getElementById('problem-statement').checked,
-                  researchObjectives: document.getElementById('research-objectives').checked,
-                  researchQuestions: document.getElementById('research-questions').checked,
-                  significance: document.getElementById('significance').checked
-                }
-              },
-              methods: {
-                selected: document.getElementById('methods').checked,
-                subsections: {
-                  researchDesign: document.getElementById('research-design').checked,
-                  participants: document.getElementById('participants').checked,
-                  dataCollection: document.getElementById('data-collection').checked,
-                  dataAnalysis: document.getElementById('data-analysis').checked,
-                  ethical: document.getElementById('ethical').checked
-                }
-              },
-              results: {
-                selected: document.getElementById('results').checked,
-                subsections: {
-                  dataPresentation: document.getElementById('data-presentation').checked,
-                  statisticalAnalysis: document.getElementById('statistical-analysis').checked,
-                  keyFindings: document.getElementById('key-findings').checked,
-                  tablesFigures: document.getElementById('tables-figures').checked
-                }
-              },
-              discussion: {
-                selected: document.getElementById('discussion').checked,
-                subsections: {
-                  interpretation: document.getElementById('interpretation').checked,
-                  implications: document.getElementById('implications').checked,
-                  limitations: document.getElementById('limitations').checked,
-                  futureResearch: document.getElementById('future-research').checked,
-                  conclusion: document.getElementById('conclusion').checked
-                }
-              }
-            };
-            google.script.run
-              .withSuccessHandler(() => google.script.host.close())
-              .insertSelectedStructure(selections);
-          }
-        </script>
-      </body>
-    </html>
-  `;
-
-  const htmlOutput = HtmlService.createHtmlOutput(html)
-    .setWidth(400)
-    .setHeight(600)
-    .setTitle('Select IMRAD Sections');
-
-  DocumentApp.getUi().showModalDialog(htmlOutput, 'Select IMRAD Sections');
+function loadTemplate(templateName) {
+  const userProperties = PropertiesService.getUserProperties();
+  const templates = JSON.parse(userProperties.getProperty('templates') || '[]');
+  return templates.find(t => t.name === templateName);
 }
 
-// New function to handle the selected sections
-function insertSelectedStructure(selections) {
-  const doc = DocumentApp.getActiveDocument();
-  const body = doc.getBody();
-  
-  // Clear existing content
-  body.clear();
-  
-  // Set default paragraph style
-  const style = {};
-  style[DocumentApp.Attribute.FONT_FAMILY] = 'Times New Roman';
-  style[DocumentApp.Attribute.FONT_SIZE] = 12;
-  body.setAttributes(style);
-  
-  // Insert title
-  const title = body.appendParagraph('Title');
-  title.setHeading(DocumentApp.ParagraphHeading.TITLE);
-  title.setAttributes(style);
-
-  // Insert selected sections
-  if (selections.introduction.selected) {
-    insertSection('Introduction', selections.introduction.subsections, body, style);
-  }
-  if (selections.methods.selected) {
-    insertSection('Methods', selections.methods.subsections, body, style);
-  }
-  if (selections.results.selected) {
-    insertSection('Results', selections.results.subsections, body, style);
-  }
-  if (selections.discussion.selected) {
-    insertSection('Discussion', selections.discussion.subsections, body, style);
-  }
-}
-
-// Helper function to insert a section and its selected subsections
-function insertSection(sectionTitle, subsections, body, style) {
-  const sectionPara = body.appendParagraph(sectionTitle);
-  sectionPara.setHeading(DocumentApp.ParagraphHeading.HEADING1);
-  sectionPara.setAttributes(style);
-
-  // Get the section's subsections and placeholders from the original structure
-  const sectionData = imradHelper.sections[sectionTitle.toLowerCase()];
-  
-  sectionData.subsections.forEach(subsection => {
-    const subsectionId = subsection.title.toLowerCase().replace(/\s+/g, '-');
-    if (subsections[subsectionId]) {
-      const subsectionPara = body.appendParagraph(subsection.title);
-      subsectionPara.setHeading(DocumentApp.ParagraphHeading.HEADING2);
-      subsectionPara.setAttributes(style);
-      
-      const placeholderPara = body.appendParagraph(subsection.placeholder);
-      placeholderPara.setAttributes(style);
-    }
-  });
-
-  // Add spacing between sections
-  body.appendParagraph('').setAttributes(style);
+function getTemplates() {
+  const userProperties = PropertiesService.getUserProperties();
+  return JSON.parse(userProperties.getProperty('templates') || '[]');
 }
